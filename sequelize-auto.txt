@@ -1,0 +1,10 @@
+sequelize-auto -o "./models" -h localhost -p 3306 -d dreamland -u root -e mysql -t "sys_cust"
+
+-h, –host 数据库服务器IP地址. [必填] 
+-d, –database 数据库名称. [必填] 
+-u, –user 数据库用户名. 
+-x, –pass 数据库密码. 
+-p, –port 数据库端口. 
+-o, –output 输出目录. 
+-e, –dialect 使用的数据库方言： postgres, mysql, sqlite 
+-t, –tables 表名，如果不填，则是数据库中全量表映射为model
