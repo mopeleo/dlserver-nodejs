@@ -2,10 +2,26 @@ const log4js = require('log4js');
 let projectName = "dreamland";
 let encoding = "utf-8";
 
+/** pattern说明：
+    'c': categoryName,
+    'd': formatAsDate,
+    'h': hostname,
+    'm': formatMessage,
+    'n': endOfLine,
+    'p': logLevel,
+    'r': startTime,
+    '[': startColour,
+    ']': endColour,
+    '%': percent,
+    'x': userDefined
+*/
+var _layout = {type:'pattern', 'pattern':'[%r (%x{pid}) %p %c] %m%n', 'tokens':{'pid':function() {return process.pid;}}};
+
 log4js.configure({
     appenders:{
         console:{//记录器1:输出到控制台
             type : 'console',
+            layout: _layout
         },
         data_file:{//：记录器3：输出到日期文件
             type: "dateFile",
@@ -14,6 +30,7 @@ log4js.configure({
             daysToKeep:10,//时间文件 保存多少天，距离当前天daysToKeep以前的log将被删除
             //compress : true,//（默认为false） - 在滚动期间压缩备份文件（备份文件将具有.gz扩展名）
             pattern: "-yyyy-MM-dd.log",//（可选，默认为.yyyy-MM-dd） - 用于确定何时滚动日志的模式。格式:.yyyy-MM-dd-hh:mm:ss.log
+            layout: _layout,
             encoding : encoding
         },
         /**
@@ -48,3 +65,4 @@ log4js.configure({
 //引用categories中的类型(develop,production,error_log),为空取default
 module.exports = log4js.getLogger('develop');
 //module.exports = log4js.getLogger('production');
+

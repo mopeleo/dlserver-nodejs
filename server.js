@@ -1,33 +1,48 @@
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
-
+const log = require('./config/log4js');
+const utils = require('./tools/utils');
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
+const service = require('./services/');
 
-server.listen(3000, function() {
-    console.log('Listening on %d', server.address().port);
+server.listen(8000, function() {
+    log.info('Listening on %d', server.address().port);
 });
 
 wss.on('connection', function(ws) {
-    console.log("ws connected");
+    log.info('ws connected');
 
     ws.on('message', function(msg) {
-        console.log('received: %s', msg);
-        var receivedData = JSON.parse(msg);
-        var msgid = receivedData.msgid;
-        var type = receivedData.type;
-        if (type == 'send') {
-            var sendData = {msgid: msgid, retcode:"0000",retmsg:"success",results:[{nickname:"leo", age:30}]};
-            var sendString = JSON.stringify(sendData);
-            if (ws.readyState == WebSocket.OPEN) {
-                ws.send(sendString);
+        log.info('received param : %s', msg);
+        if(utils.isJSON(msg)){
+            var receivedData = JSON.parse(msg);
+            var msgid = receivedData.msgid;
+            var type = receivedData.type;
+            if (type == 'send') {
+                service(receivedData, function(retcode, retmsg, result){
+                    if (ws.readyState == WebSocket.OPEN) {
+                        var returnData = {};
+                        returnData.msgid = msgid;
+                        returnData.retcode = retcode;
+                        returnData.retmsg = retmsg;
+                        if(result){
+                            returnData.result = result;
+                        }
+                        var sendString = JSON.stringify(returnData);
+                        ws.send(sendString);
+                    }
+                });
             }
+        }else{
+            log.error('error request paramter, must be JSON Object!');
+            ws.send('{retcode:"9999",retmsg:"error request paramter, must be JSON Object!"}');
         }
     });
 
     ws.on('close', (msg)=>{
-        console.log('ws closed');
+        log.info('ws closed');
     });
 });

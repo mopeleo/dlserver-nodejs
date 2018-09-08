@@ -18,7 +18,6 @@ var CustInfo = function(){
 }
 
 CustInfo.getById = function(reqObj, callback){
-    var cust = new CustInfo();
     pool.query("select * from cust_info where custno = ?",[reqObj.custno], function(err, rows, fields){
         if(rows && rows.length > 0){
             callback(rows[0]);

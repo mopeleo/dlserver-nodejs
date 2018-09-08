@@ -3,6 +3,7 @@ var sequelize = require('./models/').sequelize;
 // var CustInfoService = require('./services/CustInfoService');
 var func = require('./services/');
 var log = require('./config/log4js');
+var test = require('./tools/test');
 // // 查询
 // CustInfo.findOne({
 //     where:{custno: 1}
@@ -47,7 +48,11 @@ var log = require('./config/log4js');
 
 //var t = new CustInfoService({action:"login",custno: 1, pwd: "c4ca4238a0b923820dcc509a6f75849b"});
 
-//func("100000", {action:"login",custno: 1, pwd: "c4ca4238a0b923820dcc509a6f75849b"});
+func("100000", {action:"login",custno: 1, pwd: "c4ca4238a0b923820dcc509a6f75849b"},(data)=>{
+    log.info(data);
+});
 
-log.info("info");
-log.error("error1");
+// log.info("info");
+// log.error("error1");
+// log.info(func);
+

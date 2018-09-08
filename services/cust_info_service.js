@@ -1,6 +1,7 @@
 var crypto = require('crypto');
 var custInfo = require('../models/').CustInfo;
 var log = require('../config/log4js');
+var CONST = require('../config/sysparam');
 
 var CustInfoService = {};
 
@@ -33,7 +34,7 @@ CustInfoService.login = function(req, callback){
         if(md5Pwd == res.loginpwd){
             log.info("login success");
             log.info(JSON.stringify(res))
-            callback('0000','login success');
+            callback(CONST.RETCODE_SUCCESS, 'login success');
         }else{
             log.info("error password");
             callback('0001','login failure');
