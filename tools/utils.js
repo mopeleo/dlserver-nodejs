@@ -1,4 +1,7 @@
 var log = require('../config/log4js');
+var config = require('../config/config').redis;
+var redis = require('redis');
+
 var utils = {};
 
 utils.isJSON = function isJSON(str) {
@@ -19,5 +22,7 @@ utils.isJSON = function isJSON(str) {
     log.info('param is not a string : ' + str)
     return false;
 }
+
+utils.redis = redis.createClient(config.prot, config.host, {});
 
 module.exports = utils;

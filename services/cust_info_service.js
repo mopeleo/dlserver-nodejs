@@ -1,7 +1,9 @@
 var crypto = require('crypto');
 var custInfo = require('../models/').CustInfo;
 var log = require('../config/log4js');
-var CONST = require('../config/sysparam');
+var CONST = require('../public/sys_param');
+var UserSession = require('../public/user_session');
+var redis = require('../tools/utils').redis;
 
 var CustInfoService = {};
 
@@ -34,7 +36,20 @@ CustInfoService.login = function(req, callback){
         if(md5Pwd == res.loginpwd){
             log.info("login success");
             log.info(JSON.stringify(res))
-            callback(CONST.RETCODE_SUCCESS, 'login success');
+
+            //登录成功，缓存session
+            var usession = new UserSession();
+            for(var p in usession){
+                if(res[p]){
+                    usession[p] = res[p];
+                }
+            }
+            var sessionid = usession.getSessionId();
+            redis.set(sessionid, JSON.stringify(usession));
+
+            var result = {};
+            result.token = sessionid;
+            callback(CONST.RETCODE_SUCCESS, 'login success', result);
         }else{
             log.info("error password");
             callback('0001','login failure');
