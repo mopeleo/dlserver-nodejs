@@ -1,26 +1,22 @@
 var crypto = require('crypto');
-var custInfo = require('../models/').CustInfo;
 var log = require('../config/log4js');
+var redis = require('../tools/utils').redis;
 var CONST = require('../public/sys_param');
 var UserSession = require('../public/user_session');
-var redis = require('../tools/utils').redis;
+var custInfo = require('../models/').CustInfo;
 
 var CustInfoService = {};
 
 CustInfoService.run = function(req, callback){
-    if(!req){
-        throw new Error('入参不能为空');
-    }
-    log.info("action : " + req.action);
-    switch(req.action){
-        case "login":
+    switch(req.funcid){
+        case "100000":
             CustInfoService.login(req, callback);
             break;
         case "":
             break;
         default:
-            log.error("未实现的方法：" + req.action);
-            throw new Error("未实现的方法：" + req.action);
+            log.error("未实现的方法：" + req.funcid);
+            throw new Error("未实现的方法：" + req.funcid);
     }
 };
 
@@ -52,7 +48,7 @@ CustInfoService.login = function(req, callback){
             callback(CONST.RETCODE_SUCCESS, 'login success', result);
         }else{
             log.info("error password");
-            callback('0001','login failure');
+            callback('100001','login failure');
         }
     }).catch(function (ex) {
         log.info(ex)
