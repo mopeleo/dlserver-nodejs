@@ -45,26 +45,33 @@ wss.on('connection', function(ws) {
         log.info('received param : %s', msg);
         if(utils.isJSON(msg)){
             var receivedData = JSON.parse(msg);
-            var msgid = receivedData.msgid;
-            var type = receivedData.type;
-            if (type == 'send') {
-                service(receivedData, function(retcode, retmsg, result){
-                    if (ws.readyState == WebSocket.OPEN) {
-                        var returnData = {};
-                        returnData.msgid = msgid;
-                        returnData.retcode = retcode;
-                        returnData.retmsg = retmsg;
-                        if(result){
-                            returnData.result = result;
+
+            utils.checkToken(receivedData.token).then(function(){
+                var msgid = receivedData.msgid;
+                var type = receivedData.type;
+                if (type == 'send') {
+                    service(receivedData, function(retcode, retmsg, result){
+                        if (ws.readyState == WebSocket.OPEN) {
+                            var returnData = {};
+                            returnData.msgid = msgid;
+                            returnData.retcode = retcode;
+                            returnData.retmsg = retmsg;
+                            if(result){
+                                returnData.result = result;
+                            }
+                            var sendString = JSON.stringify(returnData);
+                            ws.send(sendString);
                         }
-                        var sendString = JSON.stringify(returnData);
-                        ws.send(sendString);
-                    }
-                });
-            }
+                    });
+                }
+            }, function(){
+                ws.send('{retcode:"999998",retmsg:"error token, please login again !"}');
+                ws.close();
+            });
+
         }else{
             log.error('error request paramter, must be JSON Object!');
-            ws.send('{retcode:"9999",retmsg:"error request paramter, must be JSON Object!"}');
+            ws.send('{retcode:"999999",retmsg:"error request paramter, must be JSON Object!"}');
         }
     });
 

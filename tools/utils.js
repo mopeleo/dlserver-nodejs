@@ -4,7 +4,9 @@ var redis = require('redis');
 
 var utils = {};
 
-utils.isJSON = function isJSON(str) {
+utils.redis = redis.createClient(config.prot, config.host, {});
+
+utils.isJSON = function(str) {
     if (typeof str == 'string') {
         try {
             var obj=JSON.parse(str);
@@ -15,7 +17,7 @@ utils.isJSON = function isJSON(str) {
             }
 
         } catch(e) {
-            log.error('parse error, param is not json string : ' + str + '! '+e);
+            log.error('parse error, param is not json string : ' + str + '! ' + e);
             return false;
         }
     }
@@ -23,6 +25,27 @@ utils.isJSON = function isJSON(str) {
     return false;
 }
 
-utils.redis = redis.createClient(config.prot, config.host, {});
+utils.checkToken = function(token){
+    var promise = new Promise(function(resolve, reject){
+        if(!token){
+            log.error('token cannot empty!');
+            reject();
+            return;
+        }
+        utils.redis.get(token, function(err, val){
+            if(!val || val === ''){
+                log.error('session is not exist, please login again !');
+                reject();
+                return;
+            }
+            log.info("session : " + val);
+
+            var userSession = JSON.parse(val);
+            resolve();
+        });
+    });
+
+    return promise;
+}
 
 module.exports = utils;
